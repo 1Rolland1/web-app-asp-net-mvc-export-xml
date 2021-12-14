@@ -33,15 +33,21 @@ namespace web_app_asp_net_mvc_export_xml.Controllers
             var lessons = (List<XmlLesson>)xml.Deserialize(new MemoryStream(file));
             var db = new TimetableContext();
 
+
+
             foreach (var lesson in lessons)
             {
-                db.Lessons.Add(new Lesson()
+                var input = new Lesson()
                 {
                     Number = lesson.Number,
                     DisciplineId = lesson.DisciplineId,
-                    TeacherId = lesson.TeacherId,
-                    GroupIds = lesson.Groups.Select(x => x.Id).ToList()
-                });
+                    TeacherId = lesson.TeacherId, 
+                };
+                var groupIds = lesson.Groups.Select(x => x.Id).ToList();
+                var groups = db.Groups.Where(s => groupIds.Contains(s.Id)).ToList();
+                input.Groups = groups;
+
+                db.Lessons.Add(input);
 
                 db.SaveChanges();
             }
